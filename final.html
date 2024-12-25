@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mining Formulas</title>
+    <link rel="stylesheet" href="final.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js"></script>
+    <!--1-->
+</head>
+<body>
+    <div class="search-container">
+        <h1>Automated Mining Formula and Calculation System</h1>
+
+        <input type="text" id="search-box" placeholder="Search for a mining formula...">
+        <ul id="suggestions" class="suggestions"></ul>
+    </div>
+    
+    <!-- This section will show the selected formula details and input fields -->
+    <div id="formula-details">
+        <h2 id="formula-name"></h2>
+        <p id="formula-equation"></p>
+        <p id="formula-description"></p> <!-- Added for formula description -->
+    </div>
+
+    <!-- This section will handle user input and calculation -->
+    <div id="calculation-section">
+        <form id="calculation-form"></form>
+        <button id="calculate-btn">Calculate</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const formulas = {
+            "RQD": {
+                name: "Rock Quality Designation (RQD)",
+                formula: "RQD = (Sum of Core Lengths > 10 cm / Total Length) × 100",
+                description: "RQD is a measure of the quality of rock based on the percentage of drill core pieces longer than 10 cm.",
+                variables: ["Sum of Core Lengths", "Total Length"],
+                calculate: function(values) {
+                    return (values[0] / values[1]) * 100;
+                }
+            },
+            "Borehole Spacing": {
+                name: "Borehole Spacing",
+                formula: "S = D × cos(θ)",
+                description: "Borehole spacing measures the distance between boreholes in a drilling pattern.",
+                variables: ["D (Distance)", "θ (Angle in Degrees)"],
+                calculate: function(values) {
+                    return values[0] * Math.cos(values[1] * (Math.PI / 180)); // θ is in degrees
+                }
+            },
+            "Powder Factor": {
+                name: "Powder Factor",
+                formula: "PF = W / V",
+                description: "Powder factor is a measure of the amount of explosive used per unit volume of rock blasted.",
+                variables: ["W (Weight of Explosive in kg)", "V (Volume of Rock Blasted in m³)"],
+                calculate: function(values) {
+                    return values[0] / values[1];
+                }
+            },
+            "Blasting Vibration Intensity": {
+                name: "Blasting Vibration Intensity",
+                formula: "Intensity = (Peak Particle Velocity × Distance²) / Charge Weight",
+                description: "Vibration intensity measures the seismic effect of a blast based on particle velocity and distance.",
+                variables: ["Peak Particle Velocity (m/s)", "Distance (m)", "Charge Weight (kg)"],
+                calculate: function(values) {
+                    return (values[0] * values[1] ** 2) / values[2];
+                }
+            },
+            "Drill Penetration Rate": {
+                name: "Drill Penetration Rate",
+                formula: "Rate = (Depth Drilled) / (Time Taken)",
+                description: "Drill penetration rate measures the speed of drilling a borehole.",
+                variables: ["Depth Drilled (m)", "Time Taken (min)"],
+                calculate: function(values) {
+                    return values[0] / values[1];
+                }
+            },
+            "Slope Stability Factor of Safety": {
+                name: "Slope Stability Factor of Safety",
+                formula: "FoS = (Shear Strength) / (Shear Stress)",
+                description: "Factor of safety in slope stability analysis compares the resisting forces to the driving forces on a slope.",
+                variables: ["Shear Strength (Pa)", "Shear Stress (Pa)"],
+                calculate: function(values) {
+                    return values[0] / values[1];
+                }
+            },
+            "Volume of Pit": {
+                name: "Volume of Pit",
+                formula: "Volume = (Length × Width × Depth) / 3",
+                description: "Volume of an open pit mine based on its length, width, and depth.",
+                variables: ["Length (m)", "Width (m)", "Depth (m)"],
+                calculate: function(values) {
+                    return (values[0] * values[1] * values[2]) / 3;
+                }
+            },
+            "Blast Charge Density": {
+                name: "Blast Charge Density",
+                formula: "Density = Charge Weight / Volume of Blast",
+                description: "Blast charge density is the weight of explosive per unit volume of blast.",
+                variables: ["Charge Weight (kg)", "Volume of Blast (m³)"],
+                calculate: function(values) {
+                    return values[0] / values[1];
+                }
+            },
+
+            "Specific Gravity": {
+                name: "Specific Gravity",
+                formula: "SG = Weight of Substance / Weight of an Equal Volume of Water",
+                description: "Specific Gravity is the ratio of the density of a substance to the density of water.",
+                variables: ["Weight of Substance", "Weight of an Equal Volume of Water"],
+                calculate: function(values) {
+                    return values[0] / values[1];
+                }
+            },
+            "Mining Recovery": {
+                name: "Mining Recovery",
+                formula: "Recovery (%) = (Ore recovered / Total ore) × 100",
+                description: "Mining recovery is the percentage of ore extracted from a mine.",
+                variables: ["Ore recovered", "Total ore"],
+                calculate: function(values) {
+                    return (values[0] / values[1]) * 100;
+                }
+            },
+            "Drillability": {
+                name: "Drillability",
+                formula: "Drillability = Distance Drilled / Time",
+                description: "Drillability measures how fast a drill can penetrate rock in mining.",
+                variables: ["Distance Drilled", "Time"],
+                calculate: function(values) {
+                    return values[0] / values[1];
+                }
+            },
+            "Porosity": {
+                name: "Porosity",
+                formula: "Porosity (%) = (Volume of Voids / Total Volume) × 100",
+                description: "Porosity is the percentage of void space in a rock.",
+                variables: ["Volume of Voids", "Total Volume"],
+                calculate: function(values) {
+                    return (values[0] / values[1]) * 100;
+                }
+            },
+            "Bulk Density": {
+                name: "Bulk Density",
+                formula: "Bulk Density = Mass of Material / Total Volume",
+                description: "Bulk density is the mass of particles in a given volume of material.",
+                variables: ["Mass of Material", "Total Volume"],
+                calculate: function(values) {
+                    return values[0] / values[1];
+                }
+            },
+            "Compressive Strength": {
+                name: "Compressive Strength",
+                formula: "Compressive Strength = Maximum Load / Cross-Sectional Area",
+                description: "Compressive strength is the capacity of a material to withstand loads tending to reduce its size.",
+                variables: ["Maximum Load", "Cross-Sectional Area"],
+                calculate: function(values) {
+                    return values[0] / values[1];
+                }
+            },
+            "Hardness": {
+                name: "Hardness",
+                formula: "Hardness = Resistance to Deformation",
+                description: "Hardness measures a material’s resistance to being scratched or indented.",
+                variables: ["Resistance to Deformation"],
+                calculate: function(values) {
+                    return values[0]; // Hardness is given as a single value
+                }
+            },
+            "Permeability": {
+                name: "Permeability",
+                formula: "Permeability = (Flow Rate × Length) / (Pressure Drop × Cross-Sectional Area)",
+                description: "Permeability is the ability of a material to allow fluids to pass through it.",
+                variables: ["Flow Rate", "Length", "Pressure Drop", "Cross-Sectional Area"],
+                calculate: function(values) {
+                    return (values[0] * values[1]) / (values[2] * values[3]);
+                }
+            },
+            "Uniaxial Compressive Strength": {
+                name: "Uniaxial Compressive Strength",
+                formula: "UCS = Failure Load / Cross-Sectional Area",
+                description: "Uniaxial Compressive Strength (UCS) measures the load a rock can withstand in one direction.",
+                variables: ["Failure Load", "Cross-Sectional Area"],
+                calculate: function(values) {
+                    return values[0] / values[1];
+                }
+            },
+            "Angle of Repose": {
+                name: "Angle of Repose",
+                formula: "tan(θ) = height / radius",
+                description: "The angle of repose is the steepest angle at which loose material remains stable.",
+                variables: ["height", "radius"],
+                calculate: function(values) {
+                    return Math.atan(values[0] / values[1]) * (180 / Math.PI); // θ in degrees
+                }
+            },
+            "Overburden Pressure": {
+                name: "Overburden Pressure",
+                formula: "P = ρ × g × h",
+                description: "Overburden pressure is the pressure exerted by the weight of overlying material.",
+                variables: ["ρ (Density)", "g (Acceleration due to gravity)", "h (Height)"],
+                calculate: function(values) {
+                    return values[0] * values[1] * values[2];
+                }
+            },
+            "Factor of Safety": {
+                name: "Factor of Safety",
+                formula: "FS = Resisting Forces / Driving Forces",
+                description: "The Factor of Safety (FS) is used to evaluate the stability of a slope or structure.",
+                variables: ["Resisting Forces", "Driving Forces"],
+                calculate: function(values) {
+                    return values[0] / values[1];
+                }
+            },
+            "Seepage Velocity": {
+                name: "Seepage Velocity",
+                formula: "v = K × i / n",
+                description: "Seepage velocity measures the flow of water through a porous medium.",
+                variables: ["K (Hydraulic Conductivity)", "i (Hydraulic Gradient)", "n (Porosity)"],
+                calculate: function(values) {
+                    return (values[0] * values[1]) / values[2];
+                }
+            },
+            "Dilution Factor": {
+                name: "Dilution Factor",
+                formula: "Dilution (%) = (Waste Material / (Waste Material + Ore)) × 100",
+                description: "Dilution factor accounts for the amount of waste material mixed with ore during mining.",
+                variables: ["Waste Material", "Ore"],
+                calculate: function(values) {
+                    return (values[0] / (values[0] + values[1])) * 100;
+                }
+            },
+            "Stripping Ratio": {
+                name: "Stripping Ratio",
+                formula: "Stripping Ratio = Volume of Overburden / Volume of Ore",
+                description: "The stripping ratio measures the amount of overburden that must be removed to extract ore.",
+                variables: ["Volume of Overburden", "Volume of Ore"],
+                calculate: function(values) {
+                    return values[0] / values[1];
+                }
+            },
+            "Blast Vibration": {
+                name: "Blast Vibration",
+                formula: "PPV = k × (D^(-n))",
+                description: "Blast vibration measures the peak particle velocity (PPV) at a distance from the blast.",
+                variables: ["k (Constant)", "D (Distance)", "n (Decay Rate)"],
+                calculate: function(values) {
+                    return values[0] * Math.pow(values[1], -values[2]);
+                }
+            },
+            "Slope Stability": {
+                name: "Slope Stability",
+                formula: "Fs = C + (N × tan φ)",
+                description: "Slope stability is assessed using the factor of safety to ensure the slope remains intact.",
+                variables: ["C (Cohesion)", "N (Normal Force)", "φ (Angle of Internal Friction)"],
+                calculate: function(values) {
+                    return values[0] + (values[1] * Math.tan(values[2] * (Math.PI / 180))); // φ in degrees
+                }
+            },
+            "Ore Grade": {
+                name: "Ore Grade",
+                formula: "Grade (%) = (Metal Content / Total Ore) × 100",
+                description: "Ore grade is the concentration of a valuable metal within the ore.",
+                variables: ["Metal Content", "Total Ore"],
+                calculate: function(values) {
+                    return (values[0] / values[1]) * 100;
+                }
+            },
+            "Ore Tonnage": {
+                name: "Ore Tonnage",
+                formula: "Tonnage = Area × Thickness × Density",
+                description: "Ore tonnage is calculated based on the volume and density of the ore body.",
+                variables: ["Area", "Thickness", "Density"],
+                calculate: function(values) {
+                    return values[0] * values[1] * values[2];
+                }
+            },
+            "Explosives Weight": {
+                name: "Explosives Weight",
+                formula: "W = (P × V) / R",
+                description: "Explosives weight measures the amount of explosives required for blasting.",
+                variables: ["P (Pressure)", "V (Volume)", "R (Resistance)"],
+                calculate: function(values) {
+                    return (values[0] * values[1]) / values[2];
+                }
+            },
+            "Pit Slope Angle": {
+                name: "Pit Slope Angle",
+                formula: "tan(θ) = Opposite / Adjacent",
+                description: "The pit slope angle is the angle of the open pit slope relative to the horizontal.",
+                variables: ["Opposite", "Adjacent"],
+                calculate: function(values) {
+                    return Math.atan(values[0] / values[1]) * (180 / Math.PI); // θ in degrees
+                }
+            },
+            "Rock Mass Rating": {
+                name: "Rock Mass Rating (RMR)",
+                formula: "RMR = (Strength + RQD + Joint Spacing + Joint Condition + Groundwater)",
+                description: "RMR is a system used to classify the quality of rock masses.",
+                variables: ["Strength", "RQD", "Joint Spacing", "Joint Condition", "Groundwater"],
+                calculate: function(values) {
+                    return values.reduce((acc, val) => acc + val, 0); // Sum of all variables
+                }
+            },
+            "Hydraulic Radius": {
+                name: "Hydraulic Radius",
+                formula: "R = A / P",
+                description: "The hydraulic radius measures the ratio of the cross-sectional area of flow to the wetted perimeter.",
+                variables: ["A (Cross-Sectional Area)", "P (Wetted Perimeter)"],
+                calculate: function(values) {
+                    return values[0] / values[1];
+                }
+            },
+            "Ore Dilution": {
+                name: "Ore Dilution",
+                formula: "Dilution (%) = (Total Mined Ore - Recoverable Ore) / Total Mined Ore × 100",
+                description: "Ore dilution is the amount of waste material mixed with ore during extraction.",
+                variables: ["Total Mined Ore", "Recoverable Ore"],
+                calculate: function(values) {
+                    return ((values[0] - values[1]) / values[0]) * 100;
+                }
+            },
+            "Volume of Ore": {
+                name: "Volume of Ore",
+                formula: "Volume = Area × Depth",
+                description: "The volume of ore is calculated based on the area and depth of the ore body.",
+                variables: ["Area", "Depth"],
+                calculate: function(values) {
+                    return values[0] * values[1];
+                }
+            },
+            "Break Even Stripping Ratio": {
+                name: "Break Even Stripping Ratio",
+                formula: "Break Even Ratio = Cost of Mining Ore / Cost of Removing Overburden",
+                description: "The break-even stripping ratio determines whether the value of ore justifies removing the overburden.",
+                variables: ["Cost of Mining Ore", "Cost of Removing Overburden"],
+                calculate: function(values) {
+                    return values[0] / values[1];
+                }
+            },
+            "Hydraulic Conductivity": {
+                name: "Hydraulic Conductivity",
+                formula: "K = Q / (A × Δh/ΔL)",
+                description: "Hydraulic conductivity is the ability of a material to allow fluids to pass through it.",
+                variables: ["Q (Flow Rate)", "A (Cross-Sectional Area)", "Δh (Change in Hydraulic Head)", "ΔL (Change in Length)"],
+                calculate: function(values) {
+                    return values[0] / (values[1] * (values[2] / values[3]));
+                }
+            },
+            "Ventilation Airflow": {
+                name: "Ventilation Airflow",
+                formula: "Q = A × V",
+                description: "Ventilation airflow in a mine is calculated by multiplying the cross-sectional area by the air velocity.",
+                variables: ["A (Cross-Sectional Area)", "V (Air Velocity)"],
+                calculate: function(values) {
+                    return values[0] * values[1];
+                }
+            },
+            "Mohr-Coulomb Failure Criterion": {
+                name: "Mohr-Coulomb Failure Criterion",
+                formula: "τ = c + σn tan φ",
+                description: "The Mohr-Coulomb criterion is used to describe the response of materials to shear stress.",
+                variables: ["c (Cohesion)", "σn (Normal Stress)", "φ (Angle of Internal Friction)"],
+                calculate: function(values) {
+                    return values[0] + (values[1] * Math.tan(values[2] * (Math.PI / 180))); // φ in degrees
+                }
+            },
+            "Subsidence Factor": {
+                name: "Subsidence Factor",
+                formula: "S = (Surface Subsidence / Mining Depth) × 100",
+                description: "Subsidence factor measures the degree of surface subsidence over a mined area.",
+                variables: ["Surface Subsidence", "Mining Depth"],
+                calculate: function(values) {
+                    return (values[0] / values[1]) * 100;
+                }
+            },
+            "Dragline Productivity": {
+                name: "Dragline Productivity",
+                formula: "P = (Volume Moved / Time) × Efficiency Factor",
+                description: "Dragline productivity measures the amount of material moved by a dragline per unit time.",
+                variables: ["Volume Moved", "Time", "Efficiency Factor"],
+                calculate: function(values) {
+                    return (values[0] / values[1]) * values[2];
+                }
+            },
+            "Hydraulic Mining Efficiency": {
+                name: "Hydraulic Mining Efficiency",
+                formula: "E = (Mass of Material Moved / Energy Input) × 100",
+                description: "Hydraulic mining efficiency measures how effectively water is used to move material.",
+                variables: ["Mass of Material Moved", "Energy Input"],
+                calculate: function(values) {
+                    return (values[0] / values[1]) * 100;
+                }
+            },
+            "Face Advance Rate": {
+                name: "Face Advance Rate",
+                formula: "Rate = Distance Advanced / Time",
+                description: "Face advance rate measures how quickly the mining face is advanced over time.",
+                variables: ["Distance Advanced", "Time"],
+                calculate: function(values) {
+                    return values[0] / values[1];
+                }
+            },
+            "Ore Pass Design": {
+                name: "Ore Pass Design",
+                formula: "Capacity = Cross-Sectional Area × Length",
+                description: "Ore pass design considers the volume capacity of ore chutes in a mine.",
+                variables: ["Cross-Sectional Area", "Length"],
+                calculate: function(values) {
+                    return values[0] * values[1];
+                }
+            },
+            "Rock Blastability Index": {
+                name: "Rock Blastability Index",
+                formula: "BI = (Hardness × Density) / Porosity",
+                description: "Blastability index measures the difficulty of blasting rock based on physical properties.",
+                variables: ["Hardness", "Density", "Porosity"],
+                calculate: function(values) {
+                    return (values[0] * values[1]) / values[2];
+                }
+            },
+            "Explosive Energy Factor": {
+                name: "Explosive Energy Factor",
+                formula: "EEF = Explosive Energy / Volume of Material Blasted",
+                description: "EEF measures the amount of energy required to blast a given volume of material.",
+                variables: ["Explosive Energy", "Volume of Material Blasted"],
+                calculate: function(values) {
+                    return values[0] / values[1];
+                }
+            },
+            "Borehole Spacing": {
+                name: "Borehole Spacing",
+                formula: "S = D × cos(θ)",
+                description: "Borehole spacing measures the distance between boreholes in a drilling pattern.",
+                variables: ["D (Distance)", "θ (Angle in Degrees)"],
+                calculate: function(values) {
+                    return values[0] * Math.cos(values[1] * (Math.PI / 180)); // θ is in degrees
+                }
+            },
+            "Explosive Energy Density": {
+                name: "Explosive Energy Density",
+                formula: "E = Energy Released / Volume of Rock Broken",
+                description: "Energy density in blasting measures the energy released per unit volume of rock.",
+                variables: ["Energy Released", "Volume of Rock Broken"],
+                calculate: function(values) {
+                    return values[0] / values[1];
+                }
+            },
+            "Ore Recovery": {
+                name: "Ore Recovery",
+                formula: "Recovery (%) = (Metal Content in Ore / Total Metal Content) × 100",
+                description: "Ore recovery is the percentage of valuable material recovered from ore.",
+                variables: ["Metal Content in Ore", "Total Metal Content"],
+                calculate: function(values) {
+                    return (values[0] / values[1]) * 100;
+                }
+            },
+            "Material Swell Factor": {
+                name: "Material Swell Factor",
+                formula: "Swell Factor = (Swelled Volume / Original Volume) × 100",
+                description: "Swell factor measures the increase in volume when material is broken or excavated.",
+                variables: ["Swelled Volume", "Original Volume"],
+                calculate: function(values) {
+                    return (values[0] / values[1]) * 100;
+                }
+            },
+            "Open Pit Slope Stability": {
+                name: "Open Pit Slope Stability",
+                formula: "FS = (Cohesion + Normal Force × tan φ) / Shear Stress",
+                description: "Slope stability evaluates the factor of safety (FS) for slopes in open pit mines.",
+                variables: ["Cohesion", "Normal Force", "φ (Angle of Internal Friction)", "Shear Stress"],
+                calculate: function(values) {
+                    return (values[0] + (values[1] * Math.tan(values[2] * (Math.PI / 180)))) / values[3]; // φ in degrees
+                }
+            },
+            "Grade Control": {
+                name: "Grade Control",
+                formula: "Grade = (Contained Metal / Ore Mined) × 100",
+                description: "Grade control ensures the ore mined meets the required quality for processing.",
+                variables: ["Contained Metal", "Ore Mined"],
+                calculate: function(values) {
+                    return (values[0] / values[1]) * 100;
+                }
+            },
+            "Airflow Rate in Ventilation": {
+                name: "Airflow Rate in Ventilation",
+                formula: "Q = A × V",
+                description: "The airflow rate in mine ventilation is the product of the cross-sectional area (A) and the velocity (V) of air.",
+                variables: ["A (Cross-Sectional Area)", "V (Velocity of Air)"],
+                calculate: function(values) {
+                    return values[0] * values[1];
+                }
+            },
+            "Reclamation Factor": {
+                name: "Reclamation Factor",
+                formula: "Reclamation (%) = (Area Restored / Total Mined Area) × 100",
+                description: "Reclamation factor measures the percentage of mined land that has been restored.",
+                variables: ["Area Restored", "Total Mined Area"],
+                calculate: function(values) {
+                    return (values[0] / values[1]) * 100;
+                }
+            },
+            "Detonation Velocity": {
+                name: "Detonation Velocity",
+                formula: "V = Distance / Time",
+                description: "Detonation velocity is the speed at which the explosive front propagates through the material.",
+                variables: ["Distance", "Time"],
+                calculate: function(values) {
+                    return values[0] / values[1];
+                }
+            },
+            "Hydraulic Pressure": {
+                name: "Hydraulic Pressure",
+                formula: "P = ρ × g × h",
+                description: "Hydraulic pressure is the pressure exerted by a fluid due to its weight.",
+                variables: ["ρ (Density of Fluid)", "g (Acceleration due to Gravity)", "h (Height)"],
+                calculate: function(values) {
+                    return values[0] * values[1] * values[2];
+                }
+            },
+            "Rock Reinforcement Density": {
+                name: "Rock Reinforcement Density",
+                formula: "Density = Number of Reinforcements / Area of Tunnel",
+                description: "Reinforcement density measures the number of rock reinforcements installed per unit area.",
+                variables: ["Number of Reinforcements", "Area of Tunnel"],
+                calculate: function(values) {
+                    return values[0] / values[1];
+                }
+            },
+            "Specific Energy in Mining": {
+                name: "Specific Energy",
+                formula: "SE = Work Done / Volume of Rock Broken",
+                description: "Specific energy is the amount of energy required to break a given volume of rock.",
+                variables: ["Work Done", "Volume of Rock Broken"],
+                calculate: function(values) {
+                    return values[0] / values[1];
+                }
+            },
+            "Power Factor": {
+                name: "Power Factor",
+                formula: "Power Factor = Real Power / Apparent Power",
+                description: "Power factor measures the efficiency of electrical power use in mining equipment.",
+                variables: ["Real Power", "Apparent Power"],
+                calculate: function(values) {
+                    return values[0] / values[1];
+                }
+            },
+            "Cut-Off Grade": {
+                name: "Cut-Off Grade",
+                formula: "COG = (Mining Cost / Metal Price) × Recovery Rate",
+                description: "Cut-off grade is the lowest grade of ore that is economically feasible to mine.",
+                variables: ["Mining Cost", "Metal Price", "Recovery Rate"],
+                calculate: function(values) {
+                    return (values[0] / values[1]) * values[2];
+                }
+            },
+            "Ventilation Efficiency": {
+                name: "Ventilation Efficiency",
+                formula: "Efficiency = (Useful Airflow / Total Airflow) × 100",
+                description: "Ventilation efficiency measures how effectively the ventilation system delivers fresh air to working areas.",
+                variables: ["Useful Airflow", "Total Airflow"],
+                calculate: function(values) {
+                    return (values[0] / values[1]) * 100;
+                }
+            },
+            "Ore Concentration Ratio": {
+                name: "Ore Concentration Ratio",
+                formula: "Concentration Ratio = Feed Grade / Concentrate Grade",
+                description: "The concentration ratio is the ratio of the metal content in the ore to that in the concentrate.",
+                variables: ["Feed Grade", "Concentrate Grade"],
+                calculate: function(values) {
+                    return values[0] / values[1];
+                }
+            },
+            "Truck Payload Capacity": {
+                name: "Truck Payload Capacity",
+                formula: "Payload = (Truck Capacity × Fill Factor)",
+                description: "Truck payload capacity is the maximum amount of material a truck can carry.",
+                variables: ["Truck Capacity", "Fill Factor"],
+                calculate: function(values) {
+                    return values[0] * values[1];
+                }
+            },
+            "Cost per Ton": {
+                name: "Cost per Ton",
+                formula: "Cost per Ton = Total Mining Cost / Total Tons Mined",
+                description: "Cost per ton is the average cost of mining one ton of ore or waste.",
+                variables: ["Total Mining Cost", "Total Tons Mined"],
+                calculate: function(values) {
+                    return values[0] / values[1];
+                }
+            },
+            "Mine Dilution": {
+                name: "Mine Dilution",
+                formula: "Dilution (%) = (Total Mined Material - Recoverable Ore) / Total Mined Material × 100",
+                description: "Mine dilution is the percentage of waste material that is mined along with the ore.",
+                variables: ["Total Mined Material", "Recoverable Ore"],
+                calculate: function(values) {
+                    return ((values[0] - values[1]) / values[0]) * 100;
+                }
+            },
+            "Fragmentation Ratio": {
+                name: "Fragmentation Ratio",
+                formula: "Fragmentation = (Volume of Rock Fragments / Volume of Original Rock)",
+                description: "Fragmentation ratio measures the degree of fragmentation after blasting.",
+                variables: ["Volume of Rock Fragments", "Volume of Original Rock"],
+                calculate: function(values) {
+                    return values[0] / values[1];
+                }
+            },
+            "Haulage Efficiency": {
+                name: "Haulage Efficiency",
+                formula: "Efficiency = (Material Hauled / Total Capacity) × 100",
+                description: "Haulage efficiency is the percentage of the haul truck's capacity used in each cycle.",
+                variables: ["Material Hauled", "Total Capacity"],
+                calculate: function(values) {
+                    return (values[0] / values[1]) * 100;
+                }
+            },
+            "Pit Optimization": {
+                name: "Pit Optimization",
+                formula: "Profit = (Revenue - Cost) / Total Volume Mined",
+                description: "Pit optimization evaluates profitability by maximizing revenue while minimizing costs.",
+                variables: ["Revenue", "Cost", "Total Volume Mined"],
+                calculate: function(values) {
+                    return (values[0] - values[1]) / values[2];
+                }
+            },
+            "Ventilation Resistance": {
+                name: "Ventilation Resistance",
+                formula: "R = P / Q^2",
+                description: "Ventilation resistance is the measure of how much a mine airway resists the flow of air.",
+                variables: ["P (Pressure)", "Q (Airflow)"],
+                calculate: function(values) {
+                    return values[0] / Math.pow(values[1], 2);
+                }
+            },
+            "Ore Reserves": {
+                name: "Ore Reserves",
+                formula: "Reserves = Volume × Grade × Recovery Factor",
+                description: "Ore reserves estimate the amount of economically recoverable material from a deposit.",
+                variables: ["Volume", "Grade", "Recovery Factor"],
+                calculate: function(values) {
+                    return values[0] * values[1] * values[2];
+                }
+            },
+            "Excavation Volume": {
+                name: "Excavation Volume",
+                formula: "Volume = Cross-Sectional Area × Length",
+                description: "Excavation volume is the amount of material removed during excavation.",
+                variables: ["Cross-Sectional Area", "Length"],
+                calculate: function(values) {
+                    return values[0] * values[1];
+                }
+            },
+            "Mine Shaft Depth": {
+                name: "Mine Shaft Depth",
+                formula: "Depth = Elevation of Surface - Elevation of Bottom",
+                description: "Mine shaft depth is the vertical distance from the surface to the bottom of the shaft.",
+                variables: ["Elevation of Surface", "Elevation of Bottom"],
+                calculate: function(values) {
+                    return values[0] - values[1];
+                }
+            },
+            "Belt Conveyor Capacity": {
+                name: "Belt Conveyor Capacity",
+                formula: "Capacity = Belt Speed × Belt Width × Material Density × Efficiency",
+                description: "Belt conveyor capacity measures the volume of material transported by the conveyor system.",
+                variables: ["Belt Speed", "Belt Width", "Material Density", "Efficiency"],
+                calculate: function(values) {
+                    return values[0] * values[1] * values[2] * values[3];
+                }
+            },
+            "Mine Dewatering Rate": {
+                name: "Mine Dewatering Rate",
+                formula: "Rate = (Total Water Removed / Time)",
+                description: "Dewatering rate measures how fast water is removed from a mine.",
+                variables: ["Total Water Removed", "Time"],
+                calculate: function(values) {
+                    return values[0] / values[1];
+                }
+            },
+            "Power Consumption in Mining": {
+                name: "Power Consumption",
+                formula: "Power = Work Done / Time",
+                description: "Power consumption is the total energy used by equipment over time.",
+                variables: ["Work Done", "Time"],
+                calculate: function(values) {
+                    return values[0] / values[1];
+                }
+            },
+            "Grade-Tonnage Curve": {
+                name: "Grade-Tonnage Curve",
+                formula: "Grade-Tonnage = (Grade × Tonnage) / Total Ore Body",
+                description: "The grade-tonnage curve shows the relationship between ore grade and tonnage.",
+                variables: ["Grade", "Tonnage", "Total Ore Body"],
+                calculate: function(values) {
+                    return (values[0] * values[1]) / values[2];
+                }
+            },
+            "Shotcrete Application Rate": {
+                name: "Shotcrete Application Rate",
+                formula: "Rate = (Volume of Shotcrete / Time)",
+                description: "Shotcrete application rate measures how fast shotcrete is applied to reinforce tunnels.",
+                variables: ["Volume of Shotcrete", "Time"],
+                calculate: function(values) {
+                    return values[0] / values[1];
+                }
+            },
+            "Fuel Consumption Rate": {
+                name: "Fuel Consumption Rate",
+                formula: "Rate = (Fuel Used / Time)",
+                description: "Fuel consumption rate measures the amount of fuel used by mining equipment over time.",
+                variables: ["Fuel Used", "Time"],
+                calculate: function(values) {
+                    return values[0] / values[1];
+                }
+            },
+            "Tailings Volume": {
+                name: "Tailings Volume",
+                formula: "Volume = (Ore Processed - Concentrate Volume) / Density of Tailings",
+                description: "Tailings volume is the amount of waste material left after ore processing.",
+                variables: ["Ore Processed", "Concentrate Volume", "Density of Tailings"],
+                calculate: function(values) {
+                    return (values[0] - values[1]) / values[2];
+                }
+            },
+            "Crushing Efficiency": {
+                name: "Crushing Efficiency",
+                formula: "Efficiency (%) = (Energy Output / Energy Input) × 100",
+                description: "Crushing efficiency is the ratio of useful work done by the crusher to the energy input.",
+                variables: ["Energy Output", "Energy Input"],
+                calculate: function(values) {
+                    return (values[0] / values[1]) * 100;
+                }
+            },
+            "Mine Water Inflow Rate": {
+                name: "Mine Water Inflow Rate",
+                formula: "Rate = (Total Water Volume / Time)",
+                description: "Mine water inflow rate measures the volume of water entering a mine over time.",
+                variables: ["Total Water Volume", "Time"],
+                calculate: function(values) {
+                    return values[0] / values[1];
+                }
+            },
+            "Explosive Charge Weight": {
+                name: "Explosive Charge Weight",
+                formula: "Weight = Density × Volume of Explosive",
+                description: "Explosive charge weight is the mass of explosives used in a blast.",
+                variables: ["Density", "Volume of Explosive"],
+                calculate: function(values) {
+                    return values[0] * values[1];
+                }
+            },
+            "Ground Control Factor": {
+                name: "Ground Control Factor",
+                formula: "Factor = (Support Strength / Ground Load)",
+                description: "Ground control factor evaluates the stability of underground mine workings.",
+                variables: ["Support Strength", "Ground Load"],
+                calculate: function(values) {
+                    return values[0] / values[1];
+                }
+            },
+            "Ore Blending Ratio": {
+                name: "Ore Blending Ratio",
+                formula: "Blending Ratio = (Ore from Pit 1 / Ore from Pit 2)",
+                description: "Ore blending ratio measures the proportion of ore blended from different sources.",
+                variables: ["Ore from Pit 1", "Ore from Pit 2"],
+                calculate: function(values) {
+                    return values[0] / values[1];
+                }
+            },
+            "Blasting Vibration Intensity": {
+                name: "Blasting Vibration Intensity",
+                formula: "Intensity = (Peak Particle Velocity × Distance^2) / Charge Weight",
+                description: "Vibration intensity measures the seismic effect of a blast based on particle velocity and distance.",
+                variables: ["Peak Particle Velocity", "Distance", "Charge Weight"],
+                calculate: function(values) {
+                    return (values[0] * Math.pow(values[1], 2)) / values[2];
+                }
+            },
+            "Dust Emission Factor": {
+                name: "Dust Emission Factor",
+                formula: "Factor = (Total Dust Emitted / Volume of Material Handled)",
+                description: "Dust emission factor measures the amount of dust generated during mining activities.",
+                variables: ["Total Dust Emitted", "Volume of Material Handled"],
+                calculate: function(values) {
+                    return values[0] / values[1];
+                }
+            },
+
+            "Qtbm": {
+                name: "Qtbm",
+                formula: `
+                    \\[
+                    Qtbm = \\frac{RQD}{J_n} \\times \\frac{J_r}{J_a} \\times \\frac{J_w}{SRF} \\times 
+                    \\frac{\\sigma_{cm} \\text{ or } \\sigma_{tm}}{\\left(F^{10} / 20^9\\right)} \\times 
+                    \\frac{20}{CLI} \\times \\frac{q}{20} \\times \\frac{\\sigma_\\theta}{5}
+                    \\]
+                `,
+                description: "The Qtbm index evaluates rock quality and tunneling support requirements, incorporating both mechanical and geological factors.",
+                variables: [
+                    "RQD", "Jn", "Jr", "Ja", "Jw", "SRF", "sigma_cm_tm", "F", "CLI", "q", "sigma_theta"
+                ],
+                calculate: function(values) {
+                    try {
+                        // Log values for debugging
+                        console.log("Inputs for Qtbm:", values);
+
+                        const [
+                            RQD, Jn, Jr, Ja, Jw, SRF, sigma_cm_tm, F, CLI, q, sigma_theta
+                        ] = values.map(val => parseFloat(val));
+
+                        // Validate inputs
+                        if (values.some(val => isNaN(val))) {
+                            throw new Error("All input fields must be valid numbers.");
+                        }
+                        if (Jn === 0 || Ja === 0 || SRF === 0 || CLI === 0 || F === 0) {
+                            throw new Error("Division by zero is not allowed. Ensure Jn, Ja, SRF, CLI, and F are non-zero.");
+                        }
+
+                        // Handle large exponents carefully (F^10 / 20^9)
+                        const FPower = Math.pow(F, 10) / Math.pow(20, 9);
+                        if (FPower === 0) {
+                            throw new Error("Invalid exponent result for F (F^10 / 20^9 is zero).");
+                        }
+
+                        // Calculate individual components
+                        const component1 = RQD / Jn;
+                        const component2 = Jr / Ja;
+                        const component3 = Jw / SRF;
+                        const component4 = sigma_cm_tm / FPower;
+                        const component5 = 20 / CLI;
+                        const component6 = q / 20;
+                        const component7 = sigma_theta / 5;
+
+                        // Calculate Qtbm
+                        const Qtbm = component1 * component2 * component3 * component4 * component5 * component6 * component7;
+
+                        // Log the calculated Qtbm for debugging
+                        console.log("Calculated Qtbm:", Qtbm);
+
+                        return `Qtbm = ${Qtbm.toFixed(2)}`;
+                    } catch (error) {
+                        console.error(error);
+                        return `Error: ${error.message}`;
+                    }
+                }
+            },
+
+            "Qvalue": {
+                name: "Qvalue",
+                formula: `
+                    \\[
+                    Qvalue = \\frac{RQD}{J_n} \\times \\frac{J_r}{J_a} \\times \\frac{J_w}{SRF}
+                    \\]
+                `,
+                description: "The Q-system for rock mass classification, incorporating geological and stress factors.",
+                variables: [
+                    "RQD", "Jn", "Jr", "Ja", "Jw", "SRF"
+                ],
+                calculate: function(values) {
+                    try {
+                        // Log values for debugging
+                        console.log("Inputs for Qvalue:", values);
+
+                        const [RQD, Jn, Jr, Ja, Jw, SRF] = values.map(val => parseFloat(val));
+
+                        // Validate inputs
+                        if (values.some(val => isNaN(val))) {
+                            throw new Error("All input fields must be valid numbers.");
+                        }
+                        if (Jn === 0 || Ja === 0 || SRF === 0) {
+                            throw new Error("Division by zero is not allowed. Ensure Jn, Ja, and SRF are non-zero.");
+                        }
+
+                        // Calculate Qvalue
+                        const Qvalue = (RQD / Jn) * (Jr / Ja) * (Jw / SRF);
+
+                        // Log the calculated Qvalue for debugging
+                        console.log("Calculated Qvalue:", Qvalue);
+
+                        return `Qvalue = ${Qvalue.toFixed(2)}`;
+                    } catch (error) {
+                        console.error(error);
+                        return `Error: ${error.message}`;
+                    }
+                }
+            },
+
+
+            "Kirsch Formula": {
+                name: "Kirsch Formula",
+                formula: `
+                    \\[
+                    \\sigma_{rr} = \\frac{P}{2} \\left[ (1 + k) \\left( 1 - \\frac{a^2}{r^2} \\right) - (1 - k) \\left( 1 - 4 \\frac{a^2}{r^2} + 3 \\frac{a^4}{r^4} \\right) \\cos 2\\theta \\right]
+                    \\]
+                    \\[
+                    \\sigma_{\\theta\\theta} = \\frac{P}{2} \\left[ (1 + k) \\left( 1 + \\frac{a^2}{r^2} \\right) + (1 - k) \\left( 1 + 3 \\frac{a^4}{r^4} \\right) \\cos 2\\theta \\right]
+                    \\]
+                    \\[
+                    \\tau_{r\\theta} = \\frac{P}{2} \\left[ (1 - k) \\left( 1 + 2 \\frac{a^2}{r^2} - 3 \\frac{a^4}{r^4} \\right) \\sin 2\\theta \\right]
+                    \\]
+                `,
+                description: "Calculates stresses around a circular hole in an elastic plate. Here, \\( k \\) is calculated as the ratio of horizontal stress to vertical stress.",
+                variables: ["P (Vertical Stress)", "σ_h (Horizontal Stress)", "a (Radius of Hole)", "r (Distance)", "θ (Angle in Degrees)"],
+                calculate: function(values) {
+                    const [P, sigma_h, a, r, theta] = values;
+                    const k = sigma_h / P;
+                    const thetaRad = theta * Math.PI / 180;
+                    const sigma_rr = (P / 2) * ((1 + k) * (1 - (a ** 2) / (r ** 2)) - (1 - k) * (1 - 4 * (a ** 2) / (r ** 2) + 3 * (a ** 4) / (r ** 4)) * Math.cos(2 * thetaRad));
+                    const sigma_theta_theta = (P / 2) * ((1 + k) * (1 + (a ** 2) / (r ** 2)) + (1 - k) * (1 + 3 * (a ** 4) / (r ** 4)) * Math.cos(2 * thetaRad));
+                    const tau_r_theta = (P / 2) * ((1 - k) * (1 + 2 * (a ** 2) / (r ** 2) - 3 * (a ** 4) / (r ** 4)) * Math.sin(2 * thetaRad));
+                    return [`σ_rr = ${sigma_rr.toFixed(2)}`, `σ_θθ = ${sigma_theta_theta.toFixed(2)}`, `τ_rθ = ${tau_r_theta.toFixed(2)}`];
+                }
+            },
+            "Stress Transformation Formula": {
+                name: "Stress Transformation Formula",
+                formula: `
+                    \\[
+                    \\sigma_n = \\frac{\\sigma_{rr} + \\sigma_{\\theta\\theta}}{2} - \\left(\\frac{\\sigma_{rr} - \\sigma_{\\theta\\theta}}{2}\\right) \\cos 2\\theta - \\tau_{r\\theta} \\sin 2\\theta
+                    \\]
+                    \\[
+                    \\tau_{xy} = -\\left(\\frac{\\sigma_{rr} - \\sigma_{\\theta\\theta}}{2}\\right) \\sin 2\\theta + \\tau_{r\\theta} \\cos 2\\theta
+                    \\]
+                    \\[
+                    \\text{Factor of Safety (FOS)} = \\frac{\\sigma_n \\tan \\phi + C}{\\tau_{xy}}
+                    \\]
+                `,
+                description: "Calculates stress transformation and Factor of Safety (FOS) in rocks.",
+                variables: ["σ_rr", "σ_θθ", "τ_rθ", "θ (Angle in Degrees)", "φ (Friction Angle in Degrees)", "C (Cohesion)"],
+                calculate: function(values) {
+                    const [sigma_rr, sigma_theta_theta, tau_r_theta, theta, phi, C] = values;
+                    const thetaRad = theta * Math.PI / 180;
+                    const phiRad = phi * Math.PI / 180;
+                    const cos2Theta = Math.cos(2 * thetaRad);
+                    const sin2Theta = Math.sin(2 * thetaRad);
+                    const sigma_n = (sigma_rr + sigma_theta_theta) / 2 - ((sigma_rr - sigma_theta_theta) / 2) * cos2Theta - tau_r_theta * sin2Theta;
+                    const tau_xy = -((sigma_rr - sigma_theta_theta) / 2) * sin2Theta + tau_r_theta * cos2Theta;
+                    const FOS = Math.abs((sigma_n * Math.tan(phiRad) + C) / tau_xy);
+                    return [`σ_n = ${sigma_n.toFixed(2)}`, `τ_xy = ${tau_xy.toFixed(2)}`, `FOS = ${FOS.toFixed(2)}`];
+                }
+            },
+
+            "Simplex Method": {
+                name: "Simplex Method",
+                formula: `
+                    \\[
+                    \\text{Maximize: } Z = c_1x_1 + c_2x_2 + \\dots + c_nx_n
+                    \\]
+                    \\[
+                    \\text{Subject to: } 
+                    \\begin{aligned}
+                    & a_{11}x_1 + a_{12}x_2 + \\dots + a_{1n}x_n \\leq b_1 \\\\
+                    & a_{21}x_1 + a_{22}x_2 + \\dots + a_{2n}x_n \\leq b_2 \\\\
+                    & \\dots \\\\
+                    & x_1, x_2, \\dots, x_n \\geq 0
+                    \\end{aligned}
+                    \\]
+                `,
+                description: "Solves linear programming problems using the Simplex Method.",
+                variables: ["Number of variables", "Number of constraints"],
+                calculate: function(values) {
+                    const numVariables = values[0];
+                    const numConstraints = values[1];
+
+                    // Collect additional inputs for constraints, objective coefficients
+                    const coefficients = [];
+                    const constraints = [];
+                    const rhs = [];
+
+                    // Get objective function coefficients
+                    for (let i = 0; i < numVariables; i++) {
+                        coefficients.push(parseFloat(prompt(`Enter coefficient for x${i + 1} in the objective function:`)));
+                    }
+
+                    // Get constraint coefficients and RHS
+                    for (let i = 0; i < numConstraints; i++) {
+                        const constraint = [];
+                        for (let j = 0; j < numVariables; j++) {
+                            constraint.push(parseFloat(prompt(`Enter coefficient for x${j + 1} in constraint ${i + 1}:`)));
+                        }
+                        constraints.push(constraint);
+                        rhs.push(parseFloat(prompt(`Enter RHS for constraint ${i + 1}:`)));
+                    }
+
+                    // Implement Simplex Algorithm
+                    return simplex(coefficients, constraints, rhs);
+                }
+            }
+
+        };
+
+        const searchBox = document.getElementById('search-box');
+        const suggestionsList = document.getElementById('suggestions');
+        const formulaDetails = document.getElementById('formula-details');
+        const calculationSection = document.getElementById('calculation-section');
+        const formulaName = document.getElementById('formula-name');
+        const formulaEquation = document.getElementById('formula-equation');
+        const formulaDescription = document.getElementById('formula-description'); // Added for description
+        const calculationForm = document.getElementById('calculation-form');
+        const calculateBtn = document.getElementById('calculate-btn');
+        const resultDiv = document.getElementById('result');
+
+        let selectedFormulaKey = null; // Store the selected formula key
+
+        // Handle real-time search and display suggestions
+        searchBox.addEventListener('input', function() {
+            const query = searchBox.value.toLowerCase();
+            suggestionsList.innerHTML = '';
+
+            if (query === '') return;
+
+            for (let key in formulas) {
+                if (key.toLowerCase().startsWith(query)) {
+                    const li = document.createElement('li');
+                    li.textContent = formulas[key].name;
+                    li.addEventListener('click', () => selectFormula(key));
+                    suggestionsList.appendChild(li);
+                }
+            }
+        });
+
+        // Function to select the formula and display details
+        function selectFormula(key) {
+            selectedFormulaKey = key; // Store the key of the selected formula
+            const formula = formulas[key];
+
+            // Display formula details
+            formulaName.textContent = formula.name;
+            formulaEquation.textContent = formula.formula;
+            formulaDescription.textContent = formula.description; // Added for description
+            formulaDetails.style.display = 'block';
+
+            // Clear any previous input fields
+            calculationForm.innerHTML = '';
+            resultDiv.innerHTML = '';
+
+            // Generate input fields for formula variables
+            formula.variables.forEach(variable => {
+                const label = document.createElement('label');
+                label.textContent = variable + ": ";
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.className = 'variable-input';
+                input.name = variable;
+                calculationForm.appendChild(label);
+                calculationForm.appendChild(input);
+                calculationForm.appendChild(document.createElement('br'));
+            });
+
+            // Show the calculation section
+            calculationSection.style.display = 'block';
+            MathJax.typeset(); // Re-render MathJax immediately after selection
+            //2
+        }
+
+        // Handle the calculation when "Calculate" button is clicked
+        calculateBtn.addEventListener('click', function(event) {
+            event.preventDefault();
+
+            if (selectedFormulaKey === null) return; // Ensure a formula is selected
+
+            // Collect input values
+            const formData = new FormData(calculationForm);
+            const values = [];
+            for (let pair of formData.entries()) {
+                const value = parseFloat(pair[1]);
+                if (isNaN(value)) {
+                    resultDiv.innerHTML = `<p style="color: red;">Please enter valid numbers for all fields.</p>`;
+                    return;
+                }
+                values.push(value);
+            }
+
+            const formula = formulas[selectedFormulaKey];
+
+            // Perform the calculation with error handling
+            let results;
+            try {
+                results = formula.calculate(values);
+            } catch (error) {
+                resultDiv.innerHTML = `<p style="color: red;">Error in calculation: ${error.message}</p>`;
+                return;
+            }
+
+            // Display the result
+            if (Array.isArray(results)) {
+                // If multiple results, display each in a new paragraph
+                resultDiv.innerHTML = results.map(res => `<p>${res}</p>`).join('');
+            } else {
+                // Single result, format it
+                resultDiv.innerHTML = `<p>Result: ${results.toFixed(2)}</p>`;
+            }
+        });
+
+    </script>
+</body>
+</html>

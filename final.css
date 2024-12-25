@@ -1,0 +1,153 @@
+/* General styles */
+body {
+    font-family: 'Arial', sans-serif;
+    color: #f0f0f0;
+    margin: 0;
+    padding: 0;
+    background: url('mainimage.jpg') no-repeat center center fixed;
+    background-size: cover;
+}
+
+h1, h2 {
+    text-align: center;
+    color: #3393ab; /* Gold color for headings */
+}
+
+h1 {
+    font-size: 2.5em;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 5px #000;
+}
+
+h2 {
+    font-size: 2em;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px #000;
+}
+
+/* Search container styles */
+.search-container {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.7); /* Transparent dark background */
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.7);
+}
+
+#search-box {
+    width: 100%;
+    padding: 15px;
+    border: 1px solid #444;
+    border-radius: 5px;
+    background-color: #222;
+    color: #fff;
+    font-size: 1.2em;
+}
+
+#search-box::placeholder {
+    color: #999;
+}
+
+.suggestions {
+    list-style: none;
+    padding: 0;
+    margin-top: 10px;
+}
+
+.suggestions li {
+    padding: 10px;
+    background-color: #333;
+    border-bottom: 1px solid #444;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.suggestions li:hover {
+    background-color: #444;
+}
+
+/* Formula details and calculation styles */
+#formula-details {
+    max-width: 800px;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.8);
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
+    display: none;
+}
+
+#formula-equation, #formula-description {
+    font-size: 1.2em;
+    margin-bottom: 15px;
+    line-height: 1.5;
+    color: #f0f0f0;
+}
+
+#formula-description {
+    font-style: italic;
+    color: #bbb;
+}
+
+#calculation-section {
+    max-width: 800px;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.85);
+    border-radius: 10px;
+    display: none;
+}
+
+label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 1.1em;
+    color: #fff;
+}
+
+input.variable-input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #666;
+    border-radius: 5px;
+    background-color: #222;
+    color: #fff;
+}
+
+#calculate-btn {
+    width: 100%;
+    padding: 15px;
+    background-color: #28a745;
+    border: none;
+    border-radius: 5px;
+    color: #fff;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#calculate-btn:hover {
+    background-color: #218838;
+}
+
+#result {
+    margin-top: 20px;
+    font-size: 1.4em;
+    color: #3393ab;
+    text-align: center;
+    font-weight: bold;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    body {
+        padding: 0 10px;
+    }
+
+    .search-container, #formula-details, #calculation-section {
+        width: 100%;
+    }
+}
